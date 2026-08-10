@@ -67,15 +67,15 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Player: elevated above the icon stack on mobile, centered above the bottom edge on larger screens */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-28 z-10 flex flex-col items-center px-4 sm:bottom-6">
+      {/* Player: elevated above the icon row on mobile, centered above the bottom edge on larger screens */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-20 z-10 flex flex-col items-center px-4 sm:bottom-6">
         <div className="pointer-events-auto flex flex-col items-center">
           <Player playlistId={PLAYLIST_ID} playlistUrl={PLAYLIST_URL} />
         </div>
       </div>
 
-      {/* Socials: stacked above the share button on mobile, bottom-right row on larger screens */}
-      <div className="fixed bottom-16 right-4 z-10 flex items-center gap-2 sm:bottom-6 sm:right-6">
+      {/* Socials: bottom-right corner, same line as the share button */}
+      <div className="fixed bottom-4 right-4 z-10 flex items-center gap-2 sm:bottom-6 sm:right-6">
         <a
           href={INSTAGRAM_URL}
           target="_blank"
@@ -105,8 +105,8 @@ export default function Home() {
         </a>
       </div>
 
-      {/* Share: bottom-right corner on mobile (under the socials), bottom-left corner on larger screens */}
-      <div className="fixed bottom-4 right-4 z-10 sm:bottom-6 sm:left-6 sm:right-auto">
+      {/* Share: bottom-left corner, same line as the socials */}
+      <div className="fixed bottom-4 left-4 z-10 sm:bottom-6 sm:left-6">
         <ShareButton className={shareButtonClass} />
       </div>
     </main>
