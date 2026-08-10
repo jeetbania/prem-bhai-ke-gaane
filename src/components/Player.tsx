@@ -13,13 +13,14 @@ type YTPlayer = {
   getDuration: () => number;
   getVideoData: () => { video_id: string; title: string; author: string };
   getPlayerState: () => number;
+  destroy: () => void;
 };
 
 declare global {
   interface Window {
     YT?: {
       Player: new (
-        elementId: string,
+        elementOrId: string | HTMLElement,
         options: {
           width: string;
           height: string;
@@ -43,8 +44,6 @@ declare global {
   }
 }
 
-const PLAYER_ELEMENT_ID = "yt-player-host";
-
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   const m = Math.floor(seconds / 60);
@@ -60,6 +59,7 @@ export default function Player({
   playlistUrl: string;
 }) {
   const playerRef = useRef<YTPlayer | null>(null);
+  const hostContainerRef = useRef<HTMLDivElement | null>(null);
   const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [ready, setReady] = useState(false);
@@ -81,8 +81,21 @@ export default function Player({
   };
 
   useEffect(() => {
+    // React (especially Strict Mode in dev) can run this effect's
+    // mount/cleanup twice. The YouTube API replaces its target DOM node
+    // with an iframe as a side effect outside React's control, so a naive
+    // "reuse a static id" approach leaves a second player wired to a
+    // detached node after the first cleanup runs. Instead we own a fresh
+    // host element per invocation and destroy the player on cleanup.
+    let stopped = false;
+
     function createPlayer() {
-      playerRef.current = new window.YT!.Player(PLAYER_ELEMENT_ID, {
+      if (stopped || !hostContainerRef.current) return;
+      hostContainerRef.current.innerHTML = "";
+      const host = document.createElement("div");
+      hostContainerRef.current.appendChild(host);
+
+      playerRef.current = new window.YT!.Player(host, {
         width: "1",
         height: "1",
         playerVars: {
@@ -115,7 +128,7 @@ export default function Player({
             }
           },
           onError: () => {
-            // A video in the playlist is unavailable/blocked — skip it.
+            // A video in the playlist is unavailable/blocked - skip it.
             setErroredCount((n) => n + 1);
             playerRef.current?.nextVideo();
           },
@@ -126,11 +139,24 @@ export default function Player({
     if (window.YT?.Player) {
       createPlayer();
     } else {
-      const tag = document.createElement("script");
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.body.appendChild(tag);
-      window.onYouTubeIframeAPIReady = createPlayer;
+      if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+        const tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.body.appendChild(tag);
+      }
+      const previous = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        previous?.();
+        createPlayer();
+      };
     }
+
+    return () => {
+      stopped = true;
+      playerRef.current?.destroy?.();
+      playerRef.current = null;
+      setReady(false);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playlistId]);
 
@@ -173,6 +199,7 @@ export default function Player({
   const thumbnail = videoId
     ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
     : null;
+  const statusLabel = ready ? "Loading" : "Connecting";
 
   return (
     <>
@@ -187,28 +214,28 @@ export default function Player({
         }}
         aria-hidden
       >
-        <div id={PLAYER_ELEMENT_ID} />
+        <div ref={hostContainerRef} />
       </div>
 
-      <div className="pointer-events-auto flex w-[min(92vw,420px)] items-center gap-3 rounded-2xl border border-white/10 bg-black/40 p-3 shadow-2xl backdrop-blur-md">
-        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-white/10">
+      <div className="relative flex w-[min(92vw,440px)] items-center gap-3 overflow-hidden rounded-[26px] border border-white/25 bg-white/10 p-3 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-2xl backdrop-saturate-150">
+        {/* Liquid-glass sheen: soft highlight along the top edge */}
+        <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-gradient-to-b from-white/25 via-white/5 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 rounded-[26px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),inset_0_-1px_1px_rgba(0,0,0,0.15)]" />
+
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/20">
           {thumbnail ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={thumbnail}
-              alt=""
-              className="h-full w-full object-cover"
-            />
+            <img src={thumbnail} alt="" className="h-full w-full object-cover" />
           ) : null}
         </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="relative min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-white">
-                {title || (ready ? "Loading…" : "Connecting…")}
+              <p className="truncate text-sm font-medium text-white drop-shadow-sm">
+                {title || `${statusLabel}...`}
               </p>
-              <p className="truncate text-xs text-white/60">{author || " "}</p>
+              <p className="truncate text-xs text-white/70">{author || " "}</p>
             </div>
             <div className="flex shrink-0 items-center gap-1">
               <button
@@ -216,7 +243,7 @@ export default function Player({
                 onClick={() => playerRef.current?.previousVideo()}
                 disabled={!ready}
                 aria-label="Previous track"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white disabled:opacity-40"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-white/80 transition hover:bg-white/15 hover:text-white disabled:opacity-40"
               >
                 <PrevIcon />
               </button>
@@ -225,7 +252,7 @@ export default function Player({
                 onClick={togglePlay}
                 disabled={!ready}
                 aria-label={isPlaying ? "Pause" : "Play"}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-black transition hover:scale-105 disabled:opacity-40"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-md transition hover:scale-105 disabled:opacity-40"
               >
                 {isPlaying ? <PauseIcon /> : <PlayIcon />}
               </button>
@@ -234,7 +261,7 @@ export default function Player({
                 onClick={() => playerRef.current?.nextVideo()}
                 disabled={!ready}
                 aria-label="Next track"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white disabled:opacity-40"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-white/80 transition hover:bg-white/15 hover:text-white disabled:opacity-40"
               >
                 <NextIcon />
               </button>
@@ -244,14 +271,11 @@ export default function Player({
           <div className="mt-2 flex items-center gap-2">
             <div
               onClick={handleSeek}
-              className="h-1 flex-1 cursor-pointer rounded-full bg-white/20"
+              className="h-1 flex-1 cursor-pointer rounded-full bg-white/25"
             >
-              <div
-                className="h-1 rounded-full bg-white"
-                style={{ width: `${progress}%` }}
-              />
+              <div className="h-1 rounded-full bg-white" style={{ width: `${progress}%` }} />
             </div>
-            <span className="w-16 shrink-0 text-right text-[10px] tabular-nums text-white/50">
+            <span className="w-16 shrink-0 text-right text-[10px] tabular-nums text-white/60">
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
           </div>
@@ -259,14 +283,9 @@ export default function Player({
       </div>
 
       {erroredCount > 3 ? (
-        <p className="mt-2 text-xs text-white/50">
+        <p className="relative mt-2 text-center text-xs text-white/60">
           Some tracks in the playlist can&apos;t be embedded and are being skipped.{" "}
-          <a
-            href={playlistUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="underline"
-          >
+          <a href={playlistUrl} target="_blank" rel="noreferrer" className="underline">
             Listen on YouTube Music
           </a>
           .
