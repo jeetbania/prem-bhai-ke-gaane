@@ -1,4 +1,5 @@
 import Player from "@/components/Player";
+import ShareButton from "@/components/ShareButton";
 import { GlobeIcon, InstagramIcon, SpotifyIcon, XIcon, YoutubeMusicIcon } from "@/components/Icons";
 
 // This Server Component reads env vars and passes values down as props,
@@ -19,11 +20,19 @@ const WEBSITE_URL = "https://jeetcreates.cc";
 const iconLinkClass =
   "flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white/80 backdrop-blur-xl backdrop-saturate-150 shadow-[0_4px_16px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.35)] transition hover:bg-white/20 hover:text-white";
 
+const shareButtonClass =
+  "flex h-10 w-10 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-0 text-sm font-medium text-white/90 backdrop-blur-xl backdrop-saturate-150 shadow-[0_4px_16px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.35)] transition hover:bg-white/20 hover:text-white sm:w-auto sm:px-4";
+
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
+      {/* Background: a portrait-cropped image on small screens, the wide hero on larger ones */}
       <div
-        className="fixed inset-0 -z-10 bg-black bg-cover bg-center bg-no-repeat"
+        className="fixed inset-0 -z-10 bg-black bg-cover bg-center bg-no-repeat sm:hidden"
+        style={{ backgroundImage: "url(/bg-mobile.webp)" }}
+      />
+      <div
+        className="fixed inset-0 -z-10 hidden bg-black bg-cover bg-center bg-no-repeat sm:block"
         style={{ backgroundImage: "url(/bg.webp)" }}
       />
       <div className="pointer-events-none fixed inset-0 -z-10 bg-black/10" />
@@ -33,7 +42,7 @@ export default function Home() {
         <img
           src="/logo.png"
           alt="Prem Bhai Ke Gaane"
-          className="h-10 w-10 rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.35)] ring-1 ring-white/25"
+          className="h-10 w-10 drop-shadow-[0_4px_16px_rgba(0,0,0,0.35)]"
         />
 
         <div className="flex items-center gap-2">
@@ -58,13 +67,15 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-6 z-10 flex flex-col items-center px-4">
+      {/* Player: elevated above the icon stack on mobile, centered above the bottom edge on larger screens */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-28 z-10 flex flex-col items-center px-4 sm:bottom-6">
         <div className="pointer-events-auto flex flex-col items-center">
           <Player playlistId={PLAYLIST_ID} playlistUrl={PLAYLIST_URL} />
         </div>
       </div>
 
-      <div className="fixed bottom-24 right-4 z-10 flex items-center gap-2 sm:bottom-6 sm:right-6">
+      {/* Socials: stacked above the share button on mobile, bottom-right row on larger screens */}
+      <div className="fixed bottom-16 right-4 z-10 flex items-center gap-2 sm:bottom-6 sm:right-6">
         <a
           href={INSTAGRAM_URL}
           target="_blank"
@@ -92,6 +103,11 @@ export default function Home() {
         >
           <GlobeIcon className="h-[18px] w-[18px]" />
         </a>
+      </div>
+
+      {/* Share: bottom-right corner on mobile (under the socials), bottom-left corner on larger screens */}
+      <div className="fixed bottom-4 right-4 z-10 sm:bottom-6 sm:left-6 sm:right-auto">
+        <ShareButton className={shareButtonClass} />
       </div>
     </main>
   );

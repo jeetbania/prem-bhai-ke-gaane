@@ -40,3 +40,12 @@ export function GlobeIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function ShareIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M12 15V4M12 4l-3.5 3.5M12 4l3.5 3.5" />
+      <path d="M5 13v5.5A1.5 1.5 0 006.5 20h11a1.5 1.5 0 001.5-1.5V13" />
+    </svg>
+  );
+}

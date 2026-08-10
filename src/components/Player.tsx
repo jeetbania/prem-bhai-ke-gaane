@@ -222,10 +222,10 @@ export default function Player({
         <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-white/25 via-white/5 to-transparent" />
         <div className="pointer-events-none absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),inset_0_-1px_1px_rgba(0,0,0,0.15)]" />
 
-        <div className="relative h-14 w-[84px] shrink-0">
-          {/* Vinyl disc: spins while playing, tucked behind the cover art */}
+        <div className="relative h-14 w-[102px] shrink-0">
+          {/* Vinyl disc: spins while playing, mostly visible beside the cover art */}
           <div
-            className="absolute left-7 top-0 h-14 w-14 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.45)]"
+            className="absolute left-[46px] top-0 h-14 w-14 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.45)]"
             style={{
               background:
                 "repeating-radial-gradient(circle at 50% 50%, #0c0c0c 0px, #0c0c0c 2px, #2c2c2c 3px, #0c0c0c 4px)",
@@ -233,10 +233,10 @@ export default function Player({
               animationPlayState: isPlaying ? "running" : "paused",
             }}
           >
-            <div className="absolute inset-0 m-auto h-4 w-4 overflow-hidden rounded-full ring-1 ring-black/60">
+            <div className="absolute inset-0 m-auto h-5 w-5 overflow-hidden rounded-full ring-1 ring-black/60">
               {thumbnail ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={thumbnail} alt="" className="h-full w-full object-cover" />
+                <img src={thumbnail} alt="" className="h-full w-full scale-150 object-cover" />
               ) : (
                 <div className="h-full w-full bg-neutral-700" />
               )}
@@ -248,7 +248,7 @@ export default function Player({
           <div className="absolute left-0 top-0 h-14 w-14 overflow-hidden rounded-xl bg-white/10 ring-1 ring-white/25 shadow-md">
             {thumbnail ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={thumbnail} alt="" className="h-full w-full object-cover" />
+              <img src={thumbnail} alt="" className="h-full w-full scale-150 object-cover" />
             ) : null}
           </div>
         </div>
