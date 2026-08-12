@@ -41,6 +41,18 @@ export function GlobeIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+export function ShuffleIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M16 3h5v5" />
+      <path d="M4 20L21 3" />
+      <path d="M21 16v5h-5" />
+      <path d="M15 15l6 6" />
+      <path d="M4 4l5 5" />
+    </svg>
+  );
+}
+
 export function ShareIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
