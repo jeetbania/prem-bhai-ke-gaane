@@ -1,4 +1,4 @@
-import Player from "@/components/Player";
+import MusicExperience from "@/components/MusicExperience";
 import ShareButton from "@/components/ShareButton";
 import { GlobeIcon, InstagramIcon, SpotifyIcon, XIcon, YoutubeMusicIcon } from "@/components/Icons";
 
@@ -67,12 +67,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Player: elevated above the icon row on mobile, centered above the bottom edge on larger screens */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-20 z-10 flex flex-col items-center px-4 sm:bottom-6">
-        <div className="pointer-events-auto flex flex-col items-center">
-          <Player playlistId={PLAYLIST_ID} playlistUrl={PLAYLIST_URL} />
-        </div>
-      </div>
+      <MusicExperience playlistId={PLAYLIST_ID} playlistUrl={PLAYLIST_URL} />
 
       {/* Socials: bottom-right corner, same line as the share button */}
       <div className="fixed bottom-4 right-4 z-10 flex items-center gap-2 sm:bottom-6 sm:right-6">

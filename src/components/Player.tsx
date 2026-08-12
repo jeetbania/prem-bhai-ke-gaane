@@ -58,9 +58,11 @@ function formatTime(seconds: number): string {
 export default function Player({
   playlistId,
   playlistUrl,
+  onPlayingChange,
 }: {
   playlistId: string;
   playlistUrl: string;
+  onPlayingChange?: (isPlaying: boolean) => void;
 }) {
   const playerRef = useRef<YTPlayer | null>(null);
   const hostContainerRef = useRef<HTMLDivElement | null>(null);
@@ -206,6 +208,11 @@ export default function Player({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playlistId]);
+
+  useEffect(() => {
+    onPlayingChange?.(isPlaying);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying]);
 
   useEffect(() => {
     if (isPlaying) {
