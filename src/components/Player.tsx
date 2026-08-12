@@ -58,11 +58,9 @@ function formatTime(seconds: number): string {
 export default function Player({
   playlistId,
   playlistUrl,
-  onPlayingChange,
 }: {
   playlistId: string;
   playlistUrl: string;
-  onPlayingChange?: (isPlaying: boolean) => void;
 }) {
   const playerRef = useRef<YTPlayer | null>(null);
   const hostContainerRef = useRef<HTMLDivElement | null>(null);
@@ -173,7 +171,11 @@ export default function Player({
             } else if (e.data === YT.PlayerState.CUED) {
               refreshMeta();
             } else if (e.data === YT.PlayerState.ENDED) {
+              // Auto-advance to the next track instead of leaving playback
+              // stopped - this is a continuation of the same user-initiated
+              // session, so browsers allow it on both mobile and desktop.
               setIsPlaying(false);
+              playerRef.current?.nextVideo();
             }
           },
           onError: () => {
@@ -208,11 +210,6 @@ export default function Player({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playlistId]);
-
-  useEffect(() => {
-    onPlayingChange?.(isPlaying);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying]);
 
   useEffect(() => {
     if (isPlaying) {

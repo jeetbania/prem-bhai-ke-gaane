@@ -12,6 +12,9 @@ const PLAYLIST_URL =
 const SPOTIFY_URL =
   process.env.SPOTIFY_PLAYLIST_URL ??
   "https://open.spotify.com/playlist/1zeentMbIYZfgqzsQ6UlFb";
+// Set this (and redeploy) right before a risky change to warn visitors;
+// clear it (and redeploy again) once the change is confirmed working.
+const MAINTENANCE_MESSAGE = process.env.MAINTENANCE_MESSAGE ?? "";
 
 const INSTAGRAM_URL = "https://instagram.com/jeetbania";
 const X_URL = "https://x.com/figmajeet";
@@ -67,7 +70,11 @@ export default function Home() {
         </div>
       </header>
 
-      <MusicExperience playlistId={PLAYLIST_ID} playlistUrl={PLAYLIST_URL} />
+      <MusicExperience
+        playlistId={PLAYLIST_ID}
+        playlistUrl={PLAYLIST_URL}
+        maintenanceMessage={MAINTENANCE_MESSAGE}
+      />
 
       {/* Socials: bottom-right corner, same line as the share button */}
       <div className="fixed bottom-4 right-4 z-10 flex items-center gap-2 sm:bottom-6 sm:right-6">
